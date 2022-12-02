@@ -1,6 +1,6 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        io.github.nextjournal/clerk {:mvn/version "0.11.603"}
+        io.github.nextjournal/clerk {:mvn/version "0.12.699"}
         org.babashka/cli {:mvn/version "0.5.40"}
         ;; silence log warnings
         org.slf4j/slf4j-nop {:mvn/version "1.7.36"}}
