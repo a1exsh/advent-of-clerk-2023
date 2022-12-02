@@ -1,26 +1,27 @@
 ;; # 🎄 Advent of Clerk: Day 1
 (ns advent-of-clerk.day-01
-  (:require [nextjournal.clerk :as clerk]))
+  (:require [nextjournal.clerk :as clerk]
+            [clojure.string :as string]))
 
-;; Input
-
+;; ## Parsing the input
 (def input (slurp "input/2022/01"))
 
-(def lines (clojure.string/split input #"\n"))
+(def lines (string/split-lines input))
 
-(def blocks (partition-by clojure.string/blank? lines))
+(def blocks (partition-by string/blank? lines))
 (count blocks)
 
 (def str-elves (remove #(= % [""]) blocks))
 (count str-elves)
 
-(defn parse-int [s]
-  (Integer/valueOf s))
+(def elves (map #(map parse-long %) str-elves))
 
-(def elves (map #(map parse-int %) str-elves))
-
+;; ## Part I
 (def calories (map #(reduce + %) elves))
 
 (def fattest-elf (apply max calories))
 
-(def sum-three-top (->> calories sort reverse (take 3) (reduce +)))
+;; ## Part II
+(def three-fattest-elves (->> calories sort reverse (take 3)))
+
+(reduce + three-fattest-elves)
