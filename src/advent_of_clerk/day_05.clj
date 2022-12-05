@@ -4,8 +4,7 @@
             [clojure.string :as string]))
 
 ;; ## Parsing the input
-;; Example:
-(def input "    [D]    
+#_(def input "    [D]    
 [N] [C]    
 [Z] [M] [P]
  1   2   3 
@@ -15,7 +14,7 @@ move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2")
 
-(comment) (def input (slurp "input/2022/05"))
+(def input (slurp "input/2022/05"))
 
 ;;
 ;; The stacks description is a number of lines, each of the same length $l$.
@@ -28,8 +27,8 @@ move 1 from 1 to 2")
 ;; Parse the stacks as $1 \times d_i$ vectors — left to right, bottom to top,
 ;; where $d_i$ is the depth of the $i$-th vector.
 ;;
-;; Finally, we need the result to be a vector of lists (not lazy seqs!)  The
-;; vector is for the fast lookup by index, and lists are modelling the stacks.
+;; Finally, we need the result to be a vector of vectors: for the fast lookup
+;; by the stack index, and for efficient pop/push on the stacks.
 ;;
 (defn parse-stacks [s]
   (let [lines (string/split-lines s)
@@ -39,9 +38,7 @@ move 1 from 1 to 2")
     (into []
           (for [i (range n)
                 :let [col (+ 1 (* 4 i))]]
-            (into '()
-                  ;; since we are sending it to a list, we need to start from
-                  ;; the bottom:
+            (into []
                   (for [j (range depth 0 -1)
                         :let [line (nth lines (dec j))
                               c    (nth line col)]
@@ -59,8 +56,8 @@ move 1 from 1 to 2")
       (println (string/join " "
                             (for [st sts
                                   :let [len (count st)
-                                        k   (- j (- depth len))]]
-                              (if-not (neg? k)
+                                        k   (- depth 1 j)]]
+                              (if (< k len)
                                 (format "[%c]" (nth st k))
                                 "   ")))))
     ;; add stack numbers at the bottom:
@@ -71,14 +68,14 @@ move 1 from 1 to 2")
   (let [lines (string/split-lines s)]
     (for [l lines
           :let [[_ n f t] (re-find #"^move ([0-9]+) from ([0-9]+) to ([0-9]+)$" l)]]
-      {:count (parse-long n)
+      {:crates (parse-long n)
        :from  (parse-long f)
        :to    (parse-long t)})))
 
 (defn parse [s]
   (let [[stack-lines move-lines] (string/split s #"\n\n")
         stacks (parse-stacks stack-lines)]
-    ;; safety net for parse/print round-trip:
+    ;; safety net for the parse/print round-trip:
     (assert (= (str stack-lines "\n")
                (with-out-str (print-stacks stacks))))
     {:stacks stacks
@@ -104,8 +101,8 @@ move 1 from 1 to 2")
 
 #_(move-crate (puzzle :stacks) (-> puzzle :moves first))
 
-(defn make-move [stacks {:keys [count from to]}]
-  (reduce move-crate stacks (repeat count {:from from :to to})))
+(defn make-move [stacks {:keys [crates from to]}]
+  (reduce move-crate stacks (repeat crates {:from from :to to})))
 
 #_(with-out-str
   (print-stacks (make-move (puzzle :stacks) (-> puzzle :moves first))))
@@ -117,5 +114,31 @@ move 1 from 1 to 2")
   (print-stacks part1-final-state))
 
 (->> part1-final-state
+     (map peek)
+     string/join)
+
+;; ## Part II
+
+(defn move-crates-9001 [stacks {:keys [crates from to]}]
+  (print-stacks stacks)
+  (println)
+  (let [from  (dec from)
+        to    (dec to)
+        donor (nth stacks from)
+        n     (- (count donor) crates)
+        block (subvec donor n)]
+    (-> stacks
+        (update from subvec 0 n)
+        (update to   #(vec (concat % block))))))
+
+(move-crates-9001 (puzzle :stacks) (-> puzzle :moves first))
+
+(def part2-final-state
+  (reduce move-crates-9001 (puzzle :stacks) (puzzle :moves)))
+
+(with-out-str
+  (print-stacks part2-final-state))
+
+(->> part2-final-state
      (map peek)
      string/join)
