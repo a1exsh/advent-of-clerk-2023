@@ -15,27 +15,38 @@ move 3 from 1 to 3
 move 2 from 2 to 1
 move 1 from 1 to 2")
 
-(comment (def input (slurp "input/2022/05")))
+(comment) (def input (slurp "input/2022/05"))
 
 ;;
-;; The stacks description is a number of lines, each of the same length $$l$$.
-;; The number of stacks $$n$$ can be found like this:
-;; $$l = 3 \times n + (n-1) = 4 \times n - 1; n = \frac{l+1}{4}$$.
+;; The stacks description is a number of lines, each of the same length $l$.
+;; The number of stacks $n$ can be found like this:
+;; $$
+;; l = 3 \times n + (n-1) = 4 \times n - 1;
+;; n = \frac{l+1}{4}
+;; $$.
 ;;
-;; Parse the stacks as vectors — left to right, top to bottom:
+;; Parse the stacks as $1 \times d_i$ vectors — left to right, bottom to top,
+;; where $d_i$ is the depth of the $i$-th vector.
+;;
+;; Finally, we need the result to be a vector of lists (not lazy seqs!)  The
+;; vector is for the fast lookup by index, and lists are modelling the stacks.
 ;;
 (defn parse-stacks [s]
   (let [lines (string/split-lines s)
         depth (dec (count lines))
         l     (count (first lines))
         n     (/ (+ l 1) 4)]
-    (for [i (range n)
-          :let [col (+ 1 (* 4 i))]]
-      (for [j (range depth)
-            :let [line (nth lines j)
-                  c    (nth line col)]
-            :when (not= c \ )]
-        c))))
+    (into []
+          (for [i (range n)
+                :let [col (+ 1 (* 4 i))]]
+            (into '()
+                  ;; since we are sending it to a list, we need to start from
+                  ;; the bottom:
+                  (for [j (range depth 0 -1)
+                        :let [line (nth lines (dec j))
+                              c    (nth line col)]
+                        :when (not= c \ )]
+                    c))))))
 
 ;;
 ;; Print the stacks in the same format as we got them on input.  We don't need
@@ -60,9 +71,9 @@ move 1 from 1 to 2")
   (let [lines (string/split-lines s)]
     (for [l lines
           :let [[_ n f t] (re-find #"^move ([0-9]+) from ([0-9]+) to ([0-9]+)$" l)]]
-      {:count n
-       :from  f
-       :to    t})))
+      {:count (parse-long n)
+       :from  (parse-long f)
+       :to    (parse-long t)})))
 
 (defn parse [s]
   (let [[stack-lines move-lines] (string/split s #"\n\n")
@@ -77,3 +88,34 @@ move 1 from 1 to 2")
 
 (with-out-str
   (print-stacks (:stacks puzzle)))
+
+;; ## Part I
+;; Now, finally we can start solving the puzzle...
+
+(defn move-crate [stacks {:keys [from to]}]
+  (print-stacks stacks)
+  (println)
+  (let [from  (dec from)
+        to    (dec to)
+        crate (peek (nth stacks from))]
+    (-> stacks
+        (update from pop)
+        (update to   conj crate))))
+
+#_(move-crate (puzzle :stacks) (-> puzzle :moves first))
+
+(defn make-move [stacks {:keys [count from to]}]
+  (reduce move-crate stacks (repeat count {:from from :to to})))
+
+#_(with-out-str
+  (print-stacks (make-move (puzzle :stacks) (-> puzzle :moves first))))
+
+(def part1-final-state
+  (reduce make-move (puzzle :stacks) (puzzle :moves)))
+
+(with-out-str
+  (print-stacks part1-final-state))
+
+(->> part1-final-state
+     (map peek)
+     string/join)
