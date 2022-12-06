@@ -90,8 +90,12 @@ move 1 from 1 to 2")
 ;; Now, finally we can start solving the puzzle...
 
 (defn move-crate [stacks {:keys [from to]}]
-  (print-stacks stacks)
-  (println)
+  ;;
+  ;; Printing the progress on the console is nice, but it's EXTREMELY slow —
+  ;; about 30 seconds penalty!
+  ;;
+  #_(print-stacks stacks)
+  #_(println)
   (let [from  (dec from)
         to    (dec to)
         crate (peek (nth stacks from))]
@@ -120,8 +124,8 @@ move 1 from 1 to 2")
 ;; ## Part II
 
 (defn move-crates-9001 [stacks {:keys [crates from to]}]
-  (print-stacks stacks)
-  (println)
+  #_(print-stacks stacks)
+  #_(println)
   (let [from  (dec from)
         to    (dec to)
         donor (nth stacks from)
