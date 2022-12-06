@@ -5,4 +5,6 @@
 (clerk/serve! {:port 7878 :browse true :watch-paths ["src"]})
 
 (comment
-  (clerk/build! {:paths (index/build-paths) :browse true}))
+  (clerk/build! {:index "src/advent_of_clerk/index.clj"
+                 :paths (index/build-paths)
+                 :browse true}))

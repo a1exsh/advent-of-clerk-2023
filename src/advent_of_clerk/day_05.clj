@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 5
+;; # 🎄 Advent of Clerk: Day 5: Supply Stacks
 (ns advent-of-clerk.day-05
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))

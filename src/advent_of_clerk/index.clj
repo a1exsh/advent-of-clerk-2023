@@ -29,7 +29,10 @@
 {:nextjournal.clerk/visibility {:result :show}}
 
 ^::clerk/no-cache
-(clerk/html (into [:ul] (mapv (fn [path]
-                                (when-let [day (second (re-matches #".*day_(\d+).clj" path))]
-                                  [:li [:a {:href (clerk/doc-url path)} "Day " day]])) (build-paths))))
-
+(clerk/html
+ (into [:ul]
+       (mapv (fn [path]
+               [:li [:a {:href (clerk/doc-url path)}
+                     (-> path slurp str/split-lines first (str/split #": " 2) last)]])
+             ;; got to be slurping it the second time here...
+             (build-paths))))

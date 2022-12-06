@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 4
+;; # 🎄 Advent of Clerk: Day 4: Camp Cleanup
 (ns advent-of-clerk.day-04
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))

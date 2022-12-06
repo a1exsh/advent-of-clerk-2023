@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 6
+;; # 🎄 Advent of Clerk: Day 6: Tuning Trouble
 (ns advent-of-clerk.day-06
   (:require [nextjournal.clerk :as clerk]))
 
