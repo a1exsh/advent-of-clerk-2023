@@ -1,9 +1,10 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        io.github.nextjournal/clerk
-                                        ; {:mvn/version "0.11.603"}
-        {:git/url "https://github.com/nextjournal/clerk"
-         :sha #_"51b2889" "51b28898a3d540ea75d79635402498a2948f6baa"}
+
+        io.github.nextjournal/clerk {:mvn/version "0.12.707"}
+        ;; OR
+        ;; {:git/url "https://github.com/nextjournal/clerk"
+        ;;  :sha "full-commit-hash-goes-here"}
 
         org.babashka/cli {:mvn/version "0.5.40"}
         ;; silence log warnings
