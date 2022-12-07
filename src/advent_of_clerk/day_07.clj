@@ -32,10 +32,10 @@ $ ls
 (def input (slurp "input/2022/07"))
 
 ;; We will represent the input during parsing as a map of `:dir` — the path to
-;; current directory as a vector of directory names; and `:fs` — the nested
-;; map of files and directories, e.g:
-{:dir ["a" "e"]
- :fs {"a" {"e" {"i" 584}
+;; current directory as a vector of directory names; and `"/"` — the root of
+;; the filesystem:
+{:dir ["/""a" "e"]
+ "/" {"a" {"e" {"i" 584}
            "f" 29116
            "g" 2557
            "h.lst" 62596}
@@ -44,7 +44,7 @@ $ ls
 (defn parse-line [sh s]
   #_(println s "\t\t" sh)
   (case s
-    "$ cd /"  (assoc  sh :dir [])
+    "$ cd /"  (assoc  sh :dir ["/"])
     "$ cd .." (update sh :dir pop)
     "$ ls"    sh ;; no update, just skip
     ;; else
@@ -52,16 +52,13 @@ $ ls
       (update sh :dir conj name)
 
       (if-let [[_ data name] (re-matches #"^([^ ]+) (.*)$" s)]
-        (update sh :fs
-                assoc-in (conj (:dir sh) name)
-                (if (= "dir" data)
-                  {}
-                  (parse-long data)))
+        (assoc-in sh (conj (:dir sh) name)
+                  (if (= "dir" data)
+                    {}
+                    (parse-long data)))
 
         (throw (ex-info (str "Didn't understand: " s)
                         {:sh sh}))))))
-
-(update {} :fs assoc-in (conj [] :a) {})
 
 (defn parse [s]
   (->> s
@@ -77,18 +74,17 @@ $ ls
 ;; that we then filter by size:
 ;;
 (def filesystem
-  (->> shell
-       :fs
-       (postwalk (fn [x]
-                   (println x)
-                   (if (map? x)
-                     (assoc x :size (->> x
-                                         vals
-                                         (map #(if (map? %)
-                                                 (:size %)
-                                                 %))
-                                         (reduce +)))
-                     x)))))
+  (postwalk (fn [x]
+              (println x)
+              (if (map? x)
+                (assoc x :size (->> x
+                                    vals
+                                    (map #(if (map? %)
+                                            (:size %)
+                                            %))
+                                    (reduce +)))
+                x))
+            (shell "/")))
 
 (->> filesystem
      (tree-seq map? vals)
