@@ -1,7 +1,9 @@
 ;; # 🎄 Advent of Clerk: Day 8: Treetop Tree House
 (ns advent-of-clerk.day-08
   (:require [nextjournal.clerk :as clerk]
-            [clojure.string :as string]))
+            [clojure.string :as string])
+  (:import [java.awt Color]
+           [java.awt.image BufferedImage]))
 
 ;; ## Parsing the input
 (def example
@@ -69,16 +71,35 @@
 
 ;; Finally, we can take the union of the four views:
 (def from-many
-  (map (fn [& scans]
-         (apply map (fn [& s]
-                      (apply max s))
-                scans))
-       from-left
-       from-right
-       from-top
-       from-bottom))
+  (mapv (fn [& scans]
+          (apply mapv (fn [& s]
+                        (apply max s))
+                 scans))
+        from-left
+        from-right
+        from-top
+        from-bottom))
 
-;; TODO: wouldn't it be nice to visualize it?
+(def height (count puzzle))
+(def width  (count (first puzzle)))
+
+(def white (Color. 255 255 255))
+(def black (Color.   0   0   0))
+
+(let [scale 16
+      img   (BufferedImage. (* scale width)
+                            (* scale height)
+                            BufferedImage/TYPE_3BYTE_BGR)]
+  (doseq [j (range height)
+          i (range width)
+          :let [rgb (.getRGB (if (= 1 (nth (nth from-many j) i))
+                               black
+                               white))]
+          y (range (* scale j) (* scale (inc j)))
+          x (range (* scale i) (* scale (inc i)))]
+    (.setRGB img x y rgb))
+
+  img)
 
 (->> from-many
      (map #(reduce + %))
@@ -140,9 +161,6 @@
           (if (< tj t)
             (recur (inc d) (dec j))
             (inc d)))))))
-
-(def height (count puzzle))
-(def width  (count (first puzzle)))
 
 (reduce max
         (for [row (range height)
