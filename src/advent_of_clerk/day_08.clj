@@ -48,12 +48,10 @@
        (map (comp reverse scan-row reverse))))
 
 ;; To look from the top we will have to transpose the matrix:
-(defn transpose [vs]
-  (let [h (count vs)
-        w (count (first vs))]
-    (for [i (range w)]
-      (for [j (range h)]
-        (nth (nth vs j) i)))))
+(defn transpose [matrix]
+  (vec (map vec
+            (partition (count matrix)
+                       (apply interleave matrix)))))
 
 (transpose puzzle)
 
@@ -70,16 +68,84 @@
        transpose))
 
 ;; Finally, we can take the union of the four views:
-(def from-any
-  (map (fn [ls rs ts bs]
-         (map (fn [l r t b]
-                (max l r t b))
-              ls rs ts bs))
+(def from-many
+  (map (fn [& scans]
+         (apply map (fn [& s]
+                      (apply max s))
+                scans))
        from-left
        from-right
        from-top
        from-bottom))
 
-(->> from-any
+;; TODO: wouldn't it be nice to visualize it?
+
+(->> from-many
      (map #(reduce + %))
      (reduce +))
+
+;; ## Part II
+(defn look-east [mat row col]
+  (let [ts  (nth mat row)
+        len (count ts)
+        t   (nth ts col)]
+    #_(println {:len len :t t})
+    (loop [d 0
+           i (inc col)]
+      #_(println {:d d :i i})
+      (if (>= i len)
+        d
+        (let [ti (nth ts i)]
+          (if (< ti t)
+            (recur (inc d) (inc i))
+            (inc d)))))))
+
+(defn look-west [mat row col]
+  (let [ts (nth mat row)
+        t  (nth ts col)]
+    #_(println {:t t})
+    (loop [d 0
+           i (dec col)]
+      #_(println {:d d :i i})
+      (if (< i 0)
+        d
+        (let [ti (nth ts i)]
+          (if (< ti t)
+            (recur (inc d) (dec i))
+            (inc d)))))))
+
+(defn look-south [mat row col]
+  (let [len (count mat)
+        t   (nth (nth mat row) col)]
+    #_(println {:t t})
+    (loop [d 0
+           j (inc row)]
+      #_(println {:d d :i i})
+      (if (>= j len)
+        d
+        (let [tj (nth (nth mat j) col)]
+          (if (< tj t)
+            (recur (inc d) (inc j))
+            (inc d)))))))
+
+(defn look-north [mat row col]
+  (let [t (nth (nth mat row) col)]
+    #_(println {:t t})
+    (loop [d 0
+           j (dec row)]
+      #_(println {:d d :i i})
+      (if (< j 0)
+        d
+        (let [tj (nth (nth mat j) col)]
+          (if (< tj t)
+            (recur (inc d) (dec j))
+            (inc d)))))))
+
+(def height (count puzzle))
+(def width  (count (first puzzle)))
+
+(reduce max
+        (for [row (range height)
+              col (range width)]
+          (apply * (map #(% puzzle row col)
+                        [look-east look-south look-west look-north]))))
