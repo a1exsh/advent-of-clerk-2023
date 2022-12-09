@@ -25,6 +25,28 @@
 
 (def puzzle (parse input #_ example))
 
+;; ## Visualization
+(defn render [trees scale color-fn]
+  (binding [*warn-on-reflection* true]
+    (let [height (count trees)
+          width  (count (first trees))
+          img (BufferedImage. (* scale width)
+                              (* scale height)
+                              BufferedImage/TYPE_3BYTE_BGR)]
+      (doseq [j (range height)
+              i (range width)
+              :let [t     (nth (nth trees j) i)
+                    color (color-fn t)
+                    rgb   (.getRGB color)]
+              y (range (* scale j) (* scale (inc j)))
+              x (range (* scale i) (* scale (inc i)))]
+        (.setRGB ^BufferedImage img (int x) (int y) (int rgb)))
+
+      img)))
+
+(def scale 8)
+(render puzzle scale #(Color. 0 (int (+ 30 (* 25 %))) 0))
+
 ;; ## Part I
 ;;
 ;; We will have to scan the map four times (from each direction) and then take
@@ -80,26 +102,7 @@
         from-top
         from-bottom))
 
-(def height (count puzzle))
-(def width  (count (first puzzle)))
-
-(def white (Color. 255 255 255))
-(def black (Color.   0   0   0))
-
-(let [scale 16
-      img   (BufferedImage. (* scale width)
-                            (* scale height)
-                            BufferedImage/TYPE_3BYTE_BGR)]
-  (doseq [j (range height)
-          i (range width)
-          :let [rgb (.getRGB (if (= 1 (nth (nth from-many j) i))
-                               black
-                               white))]
-          y (range (* scale j) (* scale (inc j)))
-          x (range (* scale i) (* scale (inc i)))]
-    (.setRGB img x y rgb))
-
-  img)
+(render from-many scale #(if (= 1 %) Color/BLACK Color/WHITE))
 
 (->> from-many
      (map #(reduce + %))
@@ -162,8 +165,41 @@
             (recur (inc d) (dec j))
             (inc d)))))))
 
-(reduce max
-        (for [row (range height)
-              col (range width)]
-          (apply * (map #(% puzzle row col)
-                        [look-east look-south look-west look-north]))))
+(def scenic-score
+  (vec (for [row (range (count puzzle))]
+         (vec (for [col (range (count (first puzzle)))]
+                (apply * (map #(% puzzle row col)
+                              [look-east look-south look-west look-north])))))))
+
+(def max-scenic-score
+  (reduce max (mapcat identity scenic-score)))
+
+;;
+;; Let's render the scenic score per tree.  We will need a HSL to RGB
+;; conversion to make it nicer:
+;;
+;; ```js
+;; // input: h as an angle in [0,360] and s,l in [0,1] - output: r,g,b in [0,1]
+;; function hsl2rgb(h,s,l) 
+;; {
+;;    let a=s*Math.min(l,1-l);
+;;    let f= (n,k=(n+h/30)%12) => l - a*Math.max(Math.min(k-3,9-k,1),-1);
+;;    return [f(0),f(8),f(4)];
+;; }
+;; ```
+;;
+;; https://stackoverflow.com/a/64090995
+;;
+(defn hsl->color [^long h ^double s ^double l]
+  (let [a (* s (Math/min l (- 1.0 l)))
+        f (fn [n]
+            (let [k (int (mod (+ n (/ h 30)) 12))]
+              (* 255 (- l (* a (Math/max (Math/min (- k 3)
+                                                   (Math/min (- 9 k) 1))
+                                         -1))))))]
+    (Color. (int (f 0)) (int (f 8)) (int (f 4)))))
+
+(render scenic-score
+        scale
+        #(hsl->color 120 1.0 (/ (Math/log (inc %))
+                                (Math/log (inc max-scenic-score)))))
