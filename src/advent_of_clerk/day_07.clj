@@ -75,7 +75,7 @@ $ ls
 ;;
 (def filesystem
   (postwalk (fn [x]
-              (println x)
+              #_(println x)
               (if (map? x)
                 (assoc x :size (->> x
                                     vals
