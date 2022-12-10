@@ -180,3 +180,12 @@ noop"))
      (map #(* % (nth cycles (dec %))))
      (reduce +))
 
+;; ## Part II
+(->> cycles
+     (partition 40)
+     (map #(->> %
+                (map-indexed (fn [i x]
+                               (if (<= (dec x) i (inc x))
+                                 "#"
+                                 ".")))
+                string/join)))
