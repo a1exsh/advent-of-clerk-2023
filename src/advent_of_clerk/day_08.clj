@@ -72,24 +72,24 @@
        (map (comp reverse scan-row reverse))))
 
 ;; To look from the top we will have to transpose the matrix:
-(defn transpose [matrix]
+(defn transposev [matrix]
   (vec (map vec
             (partition (count matrix)
                        (apply interleave matrix)))))
 
-(transpose puzzle)
+(transposev puzzle)
 
 (def from-top
   (->> puzzle
-       transpose
+       transposev
        (map scan-row)
-       transpose))
+       transposev))
 
 (def from-bottom
   (->> puzzle
-       transpose
+       transposev
        (map (comp reverse scan-row reverse))
-       transpose))
+       transposev))
 
 ;; Finally, we can take the union of the four views:
 (def from-many
