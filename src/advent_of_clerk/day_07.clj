@@ -48,10 +48,10 @@ $ ls
     "$ cd .." (update sh :dir pop)
     "$ ls"    sh ;; no update, just skip
     ;; else
-    (if-let [[_ name] (re-find #"^\$ cd (.*)$" s)]
+    (if-let [[_ name] (re-matches #"\$ cd (.*)" s)]
       (update sh :dir conj name)
 
-      (if-let [[_ data name] (re-matches #"^([^ ]+) (.*)$" s)]
+      (if-let [[_ data name] (re-matches #"([^ ]+) (.*)" s)]
         (assoc-in sh (conj (:dir sh) name)
                   (if (= "dir" data)
                     {}

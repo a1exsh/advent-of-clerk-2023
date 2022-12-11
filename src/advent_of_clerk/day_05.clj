@@ -67,7 +67,7 @@ move 1 from 1 to 2")
 (defn parse-moves [s]
   (let [lines (string/split-lines s)]
     (for [l lines
-          :let [[_ n f t] (re-find #"^move ([0-9]+) from ([0-9]+) to ([0-9]+)$" l)]]
+          :let [[_ n f t] (re-matches #"move ([0-9]+) from ([0-9]+) to ([0-9]+)" l)]]
       {:crates (parse-long n)
        :from  (parse-long f)
        :to    (parse-long t)})))
