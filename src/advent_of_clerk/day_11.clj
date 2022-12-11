@@ -67,8 +67,14 @@ Monkey 3:
 
 (def puzzle (parse input #_ example))
 
+;; We need it again here:
+(defn transpose [matrix]
+  (partition (count matrix)
+             (apply interleave matrix)))
+
 ;; ## Part I
-(defn monkey-inspects-item [monkeys {:keys [op div-by f t] :as m} item]
+(defn monkey-inspects-item
+  [worry-fn monkeys {:keys [op div-by f t] :as m} item]
   (let [[o v] op
         value (if (= "old" v)
                 item
@@ -76,45 +82,142 @@ Monkey 3:
         worry (case o
                 "+" (+ item value)
                 "*" (* item value))
-        wor3  (quot worry 3)
-        test  (= 0 (rem wor3 div-by))
+        worr' (worry-fn worry)
+        test  (= 0 (rem worr' div-by))
         ->to  (if test t f)]
-    (update-in monkeys [->to :items] conj wor3)))
+    (update-in monkeys [->to :items] conj worr')))
 
-(defn play-turn [monkeys n]
+(def monkey-inspects-item-1 (partial monkey-inspects-item #(quot % 3)))
+
+(defn play-turn [inspect-fn monkeys n]
   (let [m     (nth monkeys n)
         items (:items m)]
-    (reduce #(monkey-inspects-item %1 m %2)
+    (reduce #(inspect-fn %1 m %2)
             (update monkeys n assoc :items Q :inspected (count items))
             items)))
 
-(defn transpose [matrix]
-  (partition (count matrix)
-             (apply interleave matrix)))
+(def play-turn-1 (partial play-turn monkey-inspects-item-1))
 
-(def first-20-turns
+(def first-20-turns-1
   (->> (range 20)
        (reductions (fn [monkeys _]
-                     (reduce play-turn
+                     (reduce play-turn-1
                              monkeys
                              (range (count monkeys))))
                    puzzle)))
 
-(def inspected-count-per-turn-per-monkey
-  (map #(map :inspected %) first-20-turns))
+(def inspected-count-per-turn-per-monkey-1
+  (map #(map :inspected %) first-20-turns-1))
 
-(def inspected-count-per-monkey-per-turn
-  (transpose inspected-count-per-turn-per-monkey))
+(def inspected-count-per-monkey-per-turn-1
+  (transpose inspected-count-per-turn-per-monkey-1))
 
-(def inspected-count-per-monkey
-  (map #(reduce + %) inspected-count-per-monkey-per-turn))
+(def inspected-count-per-monkey-1
+  (map #(reduce + %) inspected-count-per-monkey-per-turn-1))
 
-(def top-two-busiest-monkeys
-  (->> inspected-count-per-monkey
+(def top-two-busiest-monkeys-1
+  (->> inspected-count-per-monkey-1
        (sort >)
        (take 2)))
 
-(def monkey-business-level
-  (apply * top-two-busiest-monkeys))
+(def monkey-business-level-1
+  (apply * top-two-busiest-monkeys-1))
 
 ;; ## Part II
+;;
+;; This is one of those rare times when the math learned in university can be
+;; applied directly ;)
+;;
+(def ring (->> puzzle (map :div-by) (apply *)))
+
+(def monkey-inspects-item-2 (partial monkey-inspects-item #(mod % ring)))
+
+(def play-turn-2 (partial play-turn monkey-inspects-item-2))
+
+(def first-10000-turns-2
+  (->> (range 10000)
+       (reductions (fn [monkeys _]
+                     (reduce play-turn-2
+                             monkeys
+                             (range (count monkeys))))
+                   puzzle)))
+
+(def inspected-count-per-turn-per-monkey-2
+  (map #(map :inspected %) first-10000-turns-2))
+
+(def inspected-count-per-monkey-per-turn-2
+  (transpose inspected-count-per-turn-per-monkey-2))
+
+(def inspected-count-per-monkey-2
+  (map #(reduce + %) inspected-count-per-monkey-per-turn-2))
+
+(def top-two-busiest-monkeys-2
+  (->> inspected-count-per-monkey-2
+       (sort >)
+       (take 2)))
+
+(def monkey-business-level-2
+  (apply * top-two-busiest-monkeys-2))
+
+;; ## testing
+
+;; ..m0
+54
+(* 7 54)
+(rem (* 7 54) 17)
+;; ->m3
+378
+(+ 378 7)
+(rem (+ 378 7) 7)
+;; ->m5
+385
+(+ 385 8)
+(rem (+ 385 8) 19)
+;; ->m7
+393
+(* 393 393)
+(rem (* 393 393) 13)
+;; ->m4
+154449
+(* 154449 17)
+(rem (* 154449 17) 11)
+;; ->m6
+2625633
+(+ 2625633 6)
+(rem (+ 2625633 6) 2)
+;; ->m1
+2625639
+(+ 2625639 4)
+(rem (+ 2625639 4) 3)
+;; ->m3
+2625643
+(+ 2625643 7)
+(rem (+ 2625643 7) 7)
+;; ->m2
+2625650
+(+ 2625650 2)
+(rem (+ 2625650 2) 5)
+;; ->m4
+
+;; ## remainder
+
+;; ..m0
+54
+(* 7 54)
+(rem (* 7 54) 17)
+(rem (* 7 54) 7)
+;; ->m3
+0
+(+ 0 7)
+(rem (+ 0 7) 7)
+(rem (+ 0 7) 19)
+;; ->m5
+7
+(+ 7 8)
+(rem (+ 7 8) 19)
+(rem (+ 7 8) 13)
+;; ->m7
+2
+(* 2 2)
+(rem (* 2 2) 13)
+;; ->m4
