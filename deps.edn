@@ -2,9 +2,7 @@
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
 
         io.github.nextjournal/clerk {:mvn/version "0.12.707"}
-        ;; OR
-        ;; {:git/url "https://github.com/nextjournal/clerk"
-        ;;  :sha "full-commit-hash-goes-here"}
+        ;;{:git/sha "8c3ca7c10d0c1325e10031c711f3c23df846b952"}
 
         org.babashka/cli {:mvn/version "0.5.40"}
         ;; silence log warnings
