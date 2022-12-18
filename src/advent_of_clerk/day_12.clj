@@ -48,16 +48,15 @@ abdefghi"))
   (binding [*warn-on-reflection* true]
     (let [img (BufferedImage. (* scale width)
                               (* scale height)
-                              BufferedImage/TYPE_3BYTE_BGR)]
+                              BufferedImage/TYPE_3BYTE_BGR)
+          gfx (.createGraphics img)]
       (doseq [j (range height)
               i (range width)
               :let [ij    [i j]
-                    v     (value-at field ij)
-                    color (color-fn v ij)
-                    rgb   (.getRGB color)]
-              y (range (* scale j) (* scale (inc j)))
-              x (range (* scale i) (* scale (inc i)))]
-        (.setRGB ^BufferedImage img (int x) (int y) (int rgb)))
+                    color (color-fn (value-at field ij)
+                                    ij)]]
+        (.setColor gfx color)
+        (.fillRect gfx (* scale i) (* scale j) scale scale))
       img)))
 
 (defn green-shade [h]
