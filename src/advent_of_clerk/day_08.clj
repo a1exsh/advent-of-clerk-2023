@@ -32,16 +32,12 @@
           width  (count (first trees))
           img (BufferedImage. (* scale width)
                               (* scale height)
-                              BufferedImage/TYPE_3BYTE_BGR)]
+                              BufferedImage/TYPE_3BYTE_BGR)
+          gfx (.createGraphics img)]
       (doseq [j (range height)
-              i (range width)
-              :let [t     (nth (nth trees j) i)
-                    color (color-fn t)
-                    rgb   (.getRGB color)]
-              y (range (* scale j) (* scale (inc j)))
-              x (range (* scale i) (* scale (inc i)))]
-        (.setRGB ^BufferedImage img (int x) (int y) (int rgb)))
-
+              i (range width)]
+        (.setColor gfx (color-fn (nth (nth trees j) i)))
+        (.fillRect gfx (* scale i) (* scale j) scale scale))
       img)))
 
 (def scale 8)
