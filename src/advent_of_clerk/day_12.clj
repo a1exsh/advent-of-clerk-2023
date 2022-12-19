@@ -142,7 +142,7 @@ abdefghi"))
   (->> step-0
        (iterate step-fn)
        (take-while #(not (empty? (:next-xys %))))
-       doall))
+       (into [])))
 
 (def first-step-reaching-end
   (->> steps
@@ -158,7 +158,7 @@ abdefghi"))
   (count shortest-path-to-end))
 
 (defn render-step [{:keys [next-xys path-map]}]
-  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) set)]
+  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
     (render path-map
             scale
             (fn [p xy]
@@ -197,7 +197,7 @@ abdefghi"))
 `step*
 
 (def step-n (:counter @step*))
-(def step (nth steps step-n))
+(def step (steps step-n))
 
 (render-step step)
 
@@ -233,7 +233,7 @@ abdefghi"))
   (->> step2-0
        (iterate step2-fn)
        (take-while #(not (empty? (:next-xys %))))
-       doall))
+       (into [])))
 
 (defn path-reaching-bottom? [height-map path]
   (->> path
@@ -259,7 +259,7 @@ abdefghi"))
   (dec (count shortest-path-to-bottom)))
 
 (defn render-step2 [{:keys [next-xys path-map]}]
-  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) set)]
+  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
     (render path-map
             scale
             (fn [p xy]
@@ -289,6 +289,6 @@ abdefghi"))
 `step2*
 
 (def step2-n (:counter @step2*))
-(def step2 (nth steps2 step2-n))
+(def step2 (steps2 step2-n))
 
 (render-step2 step2)
