@@ -51,19 +51,16 @@
     (nil? x) -1
     (nil? y)  1
     (and (integer? x) (integer? y)) (compare x y)
-    (and (vector?  x) (vector?  y)) (loop [xs x
-                                           ys y]
-                                      (let [x (first xs)
-                                            y (first ys)]
-                                        (if (and (nil? x)
-                                                 (nil? y))
-                                          0 ;; bail early if both are depleted
-                                          (let [c (cmp (first xs)
-                                                       (first ys))]
-                                            (if-not (zero? c)
-                                              c
-                                              (recur (rest xs)
-                                                     (rest ys)))))))
+    (and (seqable? x) (seqable? y)) (let [x1 (first x)
+                                          y1 (first y)]
+                                      (if (and (nil? x1)
+                                               (nil? y1))
+                                        0 ;; bail early if both are depleted
+                                        (let [c (cmp x1 y1)]
+                                          (if (not= 0 c)
+                                            c
+                                            (recur (rest x)
+                                                   (rest y))))))
 
     :else (cmp (ensure-vector x)
                (ensure-vector y))))
