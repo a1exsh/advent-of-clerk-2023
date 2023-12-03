@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 11: Monkey in the Middle
+;; # 🎄 Advent of Clerk: 2022: Day 11: Monkey in the Middle
 (ns advent-of-clerk.year-2022.day-11
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string])

@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 10: Cathode-Ray Tube
+;; # 🎄 Advent of Clerk: 2022: Day 10: Cathode-Ray Tube
 (ns advent-of-clerk.year-2022.day-10
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))

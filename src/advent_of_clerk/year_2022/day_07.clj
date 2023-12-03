@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 7: No Space Left On Device
+;; # 🎄 Advent of Clerk: 2022: Day 7: No Space Left On Device
 (ns advent-of-clerk.year-2022.day-07
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]

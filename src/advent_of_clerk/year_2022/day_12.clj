@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 12: Hill Climbing Algorithm
+;; # 🎄 Advent of Clerk: 2022: Day 12: Hill Climbing Algorithm
 (ns advent-of-clerk.year-2022.day-12
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string])

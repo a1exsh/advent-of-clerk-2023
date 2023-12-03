@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 1: Calorie Counting
+;; # 🎄 Advent of Clerk: 2022: Day 1: Calorie Counting
 (ns advent-of-clerk.year-2022.day-01
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))

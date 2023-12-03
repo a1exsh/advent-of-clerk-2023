@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 13: Distress Signal
+;; # 🎄 Advent of Clerk: 2022: Day 13: Distress Signal
 (ns advent-of-clerk.year-2022.day-13
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]

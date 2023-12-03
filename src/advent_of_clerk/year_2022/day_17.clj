@@ -1,4 +1,4 @@
-;; # 🎄 Advent of Clerk: Day 17: Pyroclastic Flow
+;; # 🎄 Advent of Clerk: 2022: Day 17: Pyroclastic Flow
 (ns advent-of-clerk.year-2022.day-17
   (:require [nextjournal.clerk :as clerk])
   (:import [java.awt Color]
