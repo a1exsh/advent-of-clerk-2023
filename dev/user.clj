@@ -7,5 +7,5 @@
 
 (comment
   (clerk/build! {:index "src/advent_of_clerk/index.clj"
-                 :paths (index/build-paths)
+                 :paths (index/build-index-paths)
                  :browse true}))
