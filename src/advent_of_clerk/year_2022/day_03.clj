@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: Day 3: Rucksack Reorganization
-(ns advent-of-clerk.day-03
+(ns advent-of-clerk.year-2022.day-03
   (:require [nextjournal.clerk :as clerk]
             [clojure.set :as set]
             [clojure.string :as string]))

@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: Day 2: Rock Paper Scissors
-(ns advent-of-clerk.day-02
+(ns advent-of-clerk.year-2022.day-02
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))
 

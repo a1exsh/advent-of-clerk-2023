@@ -2,7 +2,7 @@
 
 ;; [Advent of Code](https://adventofcode.com) with
 ;; [Clerk](https://clerk.vision).
-(ns advent-of-clerk.index
+(ns advent-of-clerk.year-2022.index
   {:nextjournal.clerk/visibility {:code :hide :result :hide}}
   (:require [babashka.fs :as fs]
             [clojure.string :as str]
@@ -17,12 +17,11 @@
   []
   (into []
         (keep (fn [day]
-                (let [f (fs/file "src" "advent_of_clerk" (format "day_%02d.clj" day))]
+                (let [f (fs/file "src" "advent_of_clerk" "year_2022" (format "day_%02d.clj" day))]
                   (when (and (.exists f)
                              (< 3 (count (str/split-lines (slurp f)))))
                     (str f)))))
         (range 25)))
-
 
 #_(build-paths)
 

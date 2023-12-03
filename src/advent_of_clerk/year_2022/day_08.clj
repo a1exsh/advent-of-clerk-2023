@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: Day 8: Treetop Tree House
-(ns advent-of-clerk.day-08
+(ns advent-of-clerk.year-2022.day-08
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string])
   (:import [java.awt Color]

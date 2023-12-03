@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: Day 12: Hill Climbing Algorithm
-(ns advent-of-clerk.day-12
+(ns advent-of-clerk.year-2022.day-12
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string])
   (:import [java.awt Color]

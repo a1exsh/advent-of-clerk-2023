@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: Day 13: Distress Signal
-(ns advent-of-clerk.day-13
+(ns advent-of-clerk.year-2022.day-13
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]
             [clojure.edn :as edn]))
