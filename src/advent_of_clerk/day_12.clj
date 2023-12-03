@@ -2,8 +2,7 @@
 (ns advent-of-clerk.day-12
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string])
-  (:import [clojure.lang PersistentQueue]
-           [java.awt Color]
+  (:import [java.awt Color]
            [java.awt.image BufferedImage]))
 
 ;; ## Parsing the input
@@ -42,7 +41,7 @@ abdefghi"))
 (def puzzle (parse input #_ example))
 
 ;; ## Visualization
-(def scale 6 #_ 64)
+(def scale 5 #_ 64)
 
 (defn render [{:keys [width height] :as field} scale color-fn]
   (binding [*warn-on-reflection* true]
