@@ -40,9 +40,11 @@
           nlst (dec (count nums))]
       (if (or (> 0 nlst)
               (> (dec x) (:right (get nums nlst))))
-        (update acc :nums conj {:val dig :left x :right x})
+        (update acc :nums conj {:val dig :nline y :left x :right x})
         (update-in acc [:nums nlst] append-dig x dig)))
-    acc))
+    (if (= \* c)
+      (update acc :gears conj x)        ; for part II
+      acc)))
 
 (scan-xyc {:nums []} [0 0 \4])
 (scan-xyc {:nums [{:val 4, :left 0, :right 0}]} [1 0 \6])
@@ -57,7 +59,7 @@
                    (map (fn [x c]
                           [x y c])
                         (range))
-                   (reduce scan-xyc {:nums []})))
+                   (reduce scan-xyc {:nums [] :gears []})))
             (range))))
 
 (defn engine-symbol? [c]
@@ -79,10 +81,10 @@
 (char-at-xy engine 10 10)
 
 (defn part-number? [engine nline {:keys [left right]}]
-  (let [matr (for [y (range (- nline 1) (+ nline 2))
-                   x (range (- left  1) (+ right 2))]
-               [x y])]
-    (->> matr
+  (let [xys (for [y (range (- nline 1) (+ nline 2))
+                  x (range (- left  1) (+ right 2))]
+              [x y])]
+    (->> xys
          (map (fn [[x y]]
                 (char-at-xy engine x y)))
          (some engine-symbol?))))
@@ -98,5 +100,48 @@
                            (if (part-number? engine y num)
                              (:val num)
                              0)))))
+             (range))
+     (reduce +))
+
+;; Part II
+
+(defn num-at-xy [scans x y]
+  (->> (nth scans y)
+       :nums
+       (filter (fn [{:keys [left right]}]
+                 (<= left x right)))
+       first))
+
+(num-at-xy scan-lines 0 0)
+(num-at-xy scan-lines 3 0)
+
+(defn adjacent-nums [scans nline x]
+  (let [xys (for [y (range (- nline 1) (+ nline 2))
+                  x (range (- x     1) (+ x     2))]
+              [x y])]
+    (->> xys
+         (map (fn [[x y]]
+                (num-at-xy scans x y)))
+         (keep identity)
+         distinct)))
+
+(adjacent-nums scan-lines 1 3)
+
+(defn gear-ratio [scans nline x]
+  (let [nums (adjacent-nums scans nline x)]
+    (if (-> nums count (= 2))
+      (->> nums
+           (map :val)
+           (reduce *))
+      0)))
+
+(gear-ratio scan-lines 1 3)
+
+(->> scan-lines
+     (mapcat (fn [y line]
+               (->> line
+                    :gears
+                    (map (fn [x]
+                           (gear-ratio scan-lines y x)))))
              (range))
      (reduce +))
