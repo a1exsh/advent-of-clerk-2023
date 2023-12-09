@@ -81,13 +81,10 @@
 (char-at-xy engine 10 10)
 
 (defn part-number? [engine nline {:keys [left right]}]
-  (let [xys (for [y (range (- nline 1) (+ nline 2))
-                  x (range (- left  1) (+ right 2))]
-              [x y])]
-    (->> xys
-         (map (fn [[x y]]
-                (char-at-xy engine x y)))
-         (some engine-symbol?))))
+  (->> (for [y (range (- nline 1) (+ nline 2))
+             x (range (- left  1) (+ right 2))]
+         (char-at-xy engine x y))
+       (some engine-symbol?)))
 
 (part-number? engine 0 {:left 0 :right 2 :val 467})
 (part-number? engine 0 {:left 5 :right 7 :val 144})
@@ -116,14 +113,11 @@
 (num-at-xy scan-lines 3 0)
 
 (defn adjacent-nums [scans nline x]
-  (let [xys (for [y (range (- nline 1) (+ nline 2))
-                  x (range (- x     1) (+ x     2))]
-              [x y])]
-    (->> xys
-         (map (fn [[x y]]
-                (num-at-xy scans x y)))
-         (keep identity)
-         distinct)))
+  (->> (for [y (range (- nline 1) (+ nline 2))
+             x (range (- x     1) (+ x     2))]
+         (num-at-xy scans x y))
+       (keep identity)
+       distinct))
 
 (adjacent-nums scan-lines 1 3)
 
