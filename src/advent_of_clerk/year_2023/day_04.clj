@@ -41,15 +41,52 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11")
        (into [])))
 
 ;; ## Part I
-(defn card-points [{:keys [wins draws]}]
-  (let [winning (clojure.set/intersection (set wins) (set draws))
-        cnt (count winning)]
-    (if (= 0 cnt)
+(defn matching-nums [{:keys [wins draws]}]
+  (clojure.set/intersection (set wins) (set draws)))
+
+(defn card-points [card]
+  (let [match-count (count (matching-nums card))]
+    (if (= 0 match-count)
       0
-      (->> cnt dec (bit-shift-left 1)))))
+      (->> match-count dec (bit-shift-left 1)))))
 
 (card-points (first cards))
 
 (->> cards
      (map card-points)
      (reduce +))
+
+;; ## Part II
+(defn extra-cards [cards {card-no :card-no :as card}]
+  (let [card (nth cards (dec card-no))
+        match-count (count (matching-nums card))]
+    (->> cards
+         (drop card-no)
+         (take match-count)
+         (into []))))
+
+(extra-cards cards (first cards))
+
+(def bonus-cards
+  (->> cards
+       (map-indexed (fn [i c]
+                      (->> c
+                           (extra-cards cards)
+                           (map :card-no))))
+       vec))
+
+(def scratched-cards
+  (loop [i 0
+         untouched (-> cards count (repeat 1) vec)
+         scratched (-> cards count (repeat 0) vec)]
+    (if (-> cards count (= i))
+      scratched
+      (let [v (nth untouched i)]
+        (recur (inc i)
+               (->> (nth bonus-cards i)
+                    (reduce (fn [acc j]
+                              (update acc (dec j) + v))
+                            untouched))
+               (assoc scratched i v))))))
+
+(reduce + scratched-cards)
