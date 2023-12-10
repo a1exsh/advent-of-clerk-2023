@@ -54,13 +54,11 @@
 (def scan-lines
   (->> engine
        :lines
-       (map (fn [y row]
-              (->> row
-                   (map (fn [x c]
-                          [x y c])
-                        (range))
-                   (reduce scan-xyc {:nums [] :gears []})))
-            (range))))
+       (map-indexed (fn [y row]
+                      (->> row
+                           (map-indexed (fn [x c]
+                                          [x y c]))
+                           (reduce scan-xyc {:nums [] :gears []}))))))
 
 (defn engine-symbol? [c]
   (not (or (= \. c)
@@ -90,14 +88,14 @@
 (part-number? engine 0 {:left 5 :right 7 :val 144})
 
 (->> scan-lines
-     (mapcat (fn [y line]
-               (->> line
-                    :nums
-                    (map (fn [num]
-                           (if (part-number? engine y num)
-                             (:val num)
-                             0)))))
-             (range))
+     (map-indexed (fn [y line]
+                    (->> line
+                         :nums
+                         (map (fn [num]
+                                (if (part-number? engine y num)
+                                  (:val num)
+                                  0))))))
+     (mapcat identity)
      (reduce +))
 
 ;; Part II
@@ -132,10 +130,10 @@
 (gear-ratio scan-lines 1 3)
 
 (->> scan-lines
-     (mapcat (fn [y line]
-               (->> line
-                    :gears
-                    (map (fn [x]
-                           (gear-ratio scan-lines y x)))))
-             (range))
+     (map-indexed (fn [y line]
+                    (->> line
+                         :gears
+                         (map (fn [x]
+                                (gear-ratio scan-lines y x))))))
+     (mapcat identity)
      (reduce +))
