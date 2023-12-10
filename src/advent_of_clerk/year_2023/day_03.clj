@@ -95,7 +95,7 @@
                                 (if (part-number? engine y num)
                                   (:val num)
                                   0))))))
-     (mapcat identity)
+     (apply concat)
      (reduce +))
 
 ;; Part II
@@ -135,5 +135,5 @@
                          :gears
                          (map (fn [x]
                                 (gear-ratio scan-lines y x))))))
-     (mapcat identity)
+     (apply concat)
      (reduce +))
