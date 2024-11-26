@@ -1,10 +1,10 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
 
-        io.github.nextjournal/clerk {:mvn/version "0.15.957"}
+        io.github.nextjournal/clerk {:mvn/version "0.17.1102"}
         ;;{:git/sha "8c3ca7c10d0c1325e10031c711f3c23df846b952"}
 
-        org.babashka/cli {:mvn/version "0.5.40"}
+        org.babashka/cli {:mvn/version "0.7.52"}
         ;; silence log warnings
         org.slf4j/slf4j-nop {:mvn/version "1.7.36"}}
  

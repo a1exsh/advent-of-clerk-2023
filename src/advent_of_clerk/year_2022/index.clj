@@ -11,5 +11,5 @@
 
 ^{::clerk/no-cache true
   ::clerk/visibility {:result :show}}
-(index/render-toc (index/build-paths-for-year "year_2022")
+(index/render-toc (index/build-paths-for-year 2022)
                   3)
