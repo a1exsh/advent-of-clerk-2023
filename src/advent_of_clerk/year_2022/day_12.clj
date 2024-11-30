@@ -165,29 +165,6 @@ abdefghi"))
 (def shortest-path-len
   (count shortest-path-to-end))
 
-^::clerk/sync
-(defonce step* (atom {:counter shortest-path-len}))
-#_(reset! step* {:counter shortest-path-len})
-
-(defn slider-viewer [max-value]
-  {:transform-fn (comp (clerk/update-val symbol)
-                       clerk/mark-presented)
-   :render-fn `(fn [x]
-                 [:input {:type :range
-                          :value (:counter @@(resolve x))
-                          :min 0
-                          :max ~max-value
-                          :on-change #(swap! @(resolve x)
-                                             assoc
-                                             :counter
-                                             (int (.. % -target -value)))}])})
-
-^{::clerk/viewer (slider-viewer (dec total-steps))}
-`step*
-
-(def step-number (:counter @step*))
-(def step-to-render (steps step-number))
-
 (defn render-step [{:keys [next-xys path-map]}]
   (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
     (render path-map
@@ -206,6 +183,29 @@ abdefghi"))
                (if (nil? p)
                  0
                  (-> p count (* 191.0) (/ (count paths)) (+ 64) int)))))))
+
+(defn slider-viewer [max-value]
+  {:transform-fn (comp (clerk/update-val symbol)
+                       clerk/mark-presented)
+   :render-fn `(fn [x]
+                 [:input {:type :range
+                          :value (:counter @@(resolve x))
+                          :min 0
+                          :max ~max-value
+                          :on-change #(swap! @(resolve x)
+                                             assoc
+                                             :counter
+                                             (int (.. % -target -value)))}])})
+
+^::clerk/sync
+(defonce step* (atom {:counter shortest-path-len}))
+#_(reset! step* {:counter shortest-path-len})
+
+^{::clerk/viewer (slider-viewer (dec total-steps))}
+`step*
+
+(def step-number (:counter @step*))
+(def step-to-render (steps step-number))
 
 (render-step step-to-render)
 
@@ -273,16 +273,6 @@ abdefghi"))
 (def shortest-path-len2
   (dec (count shortest-path-to-bottom)))
 
-^::clerk/sync
-(defonce step2* (atom {:counter shortest-path-len2}))
-#_(reset! step2* {:counter shortest-path-len2})
-
-^{::clerk/viewer (slider-viewer (dec (count steps2)))}
-`step2*
-
-(def step2-number (:counter @step2*))
-(def step2-to-render (steps2 step2-number))
-
 (defn render-step2 [{:keys [next-xys path-map]}]
   (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
     (render path-map
@@ -305,5 +295,15 @@ abdefghi"))
                    (if (nil? p)
                      0
                      (-> p count (* 191.0) (/ (count paths)) (+ 64) int)))))))))
+
+^::clerk/sync
+(defonce step2* (atom {:counter shortest-path-len2}))
+#_(reset! step2* {:counter shortest-path-len2})
+
+^{::clerk/viewer (slider-viewer (dec (count steps2)))}
+`step2*
+
+(def step2-number (:counter @step2*))
+(def step2-to-render (steps2 step2-number))
 
 (render-step2 step2-to-render)
