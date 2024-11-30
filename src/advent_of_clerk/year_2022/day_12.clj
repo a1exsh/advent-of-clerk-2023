@@ -22,18 +22,17 @@ abdefghi"))
   (let [lines  (string/split-lines s)
         height (count lines)
         width  (count (first lines))]
-    (->Field width height (->> lines string/join #_char-array vec))))
+    (->Field width height (->> lines string/join vec))))
 
 (defn index-of [field x y]
   (+ (* (:width field) y)
      x))
 
 (defn value-at [field [x y]]
-  (#_aget get (:arr field) (index-of field x y)))
+  (get (:arr field) (index-of field x y)))
 
-(defn set-value-at #_! [field [x y] v]
+(defn set-value-at [field [x y] v]
   (let [elem-index (index-of field x y)]
-    #_(aset (:arr field) v)
     (assoc-in field [:arr elem-index] v)))
 
 #_(defn print-field [{:keys [width height arr]}]
@@ -112,11 +111,10 @@ abdefghi"))
 
 (defn empty-path-map [{:keys [width height] :as field}]
   (let [n-elems (* width height)]
-    (->Field width height #_(object-array n-elems)
-             (-> (repeat n-elems nil) vec))))
+    (->Field width height (vec (repeat n-elems nil)))))
 
 (defn path-map-copy [{:keys [width height arr]}]
-  (->Field width height arr #_(object-array arr)))
+  (->Field width height arr))
 
 (defn make-step [height-map {:keys [next-xys path-map] :as step}]
   (reduce (fn [{pm :path-map :as s} xy]
@@ -125,9 +123,6 @@ abdefghi"))
                   stepped-pm (reduce #(set-value-at %1 %2 (cons xy path-xy))
                                      pm
                                      cand-xys)]
-              #_(doseq [cxy cand-xys]
-                  (set-value-at #_! pm cxy (cons xy path-xy)))
-              #_(update s :next-xys #(apply conj % cand-xys))
               (-> s
                   (assoc  :path-map stepped-pm)
                   (update :next-xys #(apply conj % cand-xys)))))
@@ -138,9 +133,8 @@ abdefghi"))
 
 (def step-0
   (let [path-map (empty-path-map puzzle)]
-    #_(set-value-at! path-map start-xy '())
     {:next-xys #{start-xy}
-     :path-map #_path-map (set-value-at path-map start-xy '())}))
+     :path-map (set-value-at path-map start-xy '())}))
 
 ;; (neigh-xys puzzle start-xy)
 ;; (next-step-xys puzzle (:path-map step-0) start-xy)
@@ -230,9 +224,6 @@ abdefghi"))
                   stepped-pm (reduce #(set-value-at %1 %2 (cons xy path-xy))
                                      pm
                                      cand-xys)]
-              #_(doseq [cxy cand-xys]
-                  (set-value-at! pm cxy (cons xy path-xy)))
-              #_(update s :next-xys #(apply conj % cand-xys))
               (-> s
                   (assoc  :path-map stepped-pm)
                   (update :next-xys #(apply conj % cand-xys)))))
@@ -243,9 +234,8 @@ abdefghi"))
 
 (def step2-0
   (let [path-map (empty-path-map puzzle)]
-    #_(set-value-at! path-map end-xy '())
     {:next-xys #{end-xy}
-     :path-map #_path-map (set-value-at path-map end-xy '())}))
+     :path-map (set-value-at path-map end-xy '())}))
 
 (def step2-fn (partial make-step2 puzzle))
 
