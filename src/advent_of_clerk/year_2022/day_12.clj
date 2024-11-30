@@ -22,21 +22,23 @@ abdefghi"))
   (let [lines  (string/split-lines s)
         height (count lines)
         width  (count (first lines))]
-    (->Field width height (->> lines string/join char-array))))
+    (->Field width height (->> lines string/join #_char-array vec))))
 
 (defn index-of [field x y]
   (+ (* (:width field) y)
      x))
 
 (defn value-at [field [x y]]
-  (aget (:arr field) (index-of field x y)))
+  (#_aget get (:arr field) (index-of field x y)))
 
-(defn set-value-at! [field [x y] v]
-  (aset (:arr field) (index-of field x y) v))
+(defn set-value-at #_! [field [x y] v]
+  (let [elem-index (index-of field x y)]
+    #_(aset (:arr field) v)
+    (assoc-in field [:arr elem-index] v)))
 
 #_(defn print-field [{:keys [width height arr]}]
-  (doseq [line (partition width arr)]
-    (println line)))
+    (doseq [line (partition width arr)]
+      (println line)))
 
 (def puzzle (parse input #_ example))
 
@@ -63,25 +65,6 @@ abdefghi"))
           (* 10
              (- (int h)
                 (int \a))))))
-
-(defn render-step [{:keys [next-xys path-map]}]
-  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
-    (render path-map
-            scale
-            (fn [p xy]
-              (Color.
-               ;; RED
-               (if (contains? next-xys xy)
-                 255
-                 (if (contains? paths xy)
-                   128
-                   0))
-               ;; GREEN
-               (green-shade (height-at puzzle xy))
-               ;; BLUE
-               (if (nil? p)
-                 0
-                 (-> p count (* 191.0) (/ (count paths)) (+ 64) int)))))))
 
 (render puzzle scale (fn [h _]
                        (case h
@@ -128,18 +111,26 @@ abdefghi"))
          (filter #(->> % (value-at path-map) nil?)))))
 
 (defn empty-path-map [{:keys [width height] :as field}]
-  (->Field width height (object-array (* width height))))
+  (let [n-elems (* width height)]
+    (->Field width height #_(object-array n-elems)
+             (-> (repeat n-elems nil) vec))))
 
 (defn path-map-copy [{:keys [width height arr]}]
-  (->Field width height (object-array arr)))
+  (->Field width height arr #_(object-array arr)))
 
 (defn make-step [height-map {:keys [next-xys path-map] :as step}]
   (reduce (fn [{pm :path-map :as s} xy]
             (let [cand-xys (next-step-xys height-map pm xy)
-                  path-xy  (value-at pm xy)]
-              (doseq [cxy cand-xys]
-                (set-value-at! pm cxy (cons xy path-xy)))
-              (update s :next-xys #(apply conj % cand-xys))))
+                  path-xy  (value-at pm xy)
+                  stepped-pm (reduce #(set-value-at %1 %2 (cons xy path-xy))
+                                     pm
+                                     cand-xys)]
+              #_(doseq [cxy cand-xys]
+                  (set-value-at #_! pm cxy (cons xy path-xy)))
+              #_(update s :next-xys #(apply conj % cand-xys))
+              (-> s
+                  (assoc  :path-map stepped-pm)
+                  (update :next-xys #(apply conj % cand-xys)))))
           (assoc step
                  :next-xys #{}
                  :path-map (path-map-copy path-map))
@@ -147,9 +138,9 @@ abdefghi"))
 
 (def step-0
   (let [path-map (empty-path-map puzzle)]
-    (set-value-at! path-map start-xy '())
+    #_(set-value-at! path-map start-xy '())
     {:next-xys #{start-xy}
-     :path-map path-map}))
+     :path-map #_path-map (set-value-at path-map start-xy '())}))
 
 ;; (neigh-xys puzzle start-xy)
 ;; (next-step-xys puzzle (:path-map step-0) start-xy)
@@ -163,7 +154,9 @@ abdefghi"))
          (take-while #(not (empty? (:next-xys %))))
          (into [])))
 
-  (def total-steps (count steps)))
+  (def total-steps (count steps))
+
+  total-steps)
 
 (def first-step-reaching-end
   (->> steps
@@ -201,99 +194,126 @@ abdefghi"))
 (def step-number (:counter @step*))
 (def step-to-render (steps step-number))
 
+(defn render-step [{:keys [next-xys path-map]}]
+  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
+    (render path-map
+            scale
+            (fn [p xy]
+              (Color.
+               ;; RED
+               (if (contains? next-xys xy)
+                 255
+                 (if (contains? paths xy)
+                   128
+                   0))
+               ;; GREEN
+               (green-shade (height-at puzzle xy))
+               ;; BLUE
+               (if (nil? p)
+                 0
+                 (-> p count (* 191.0) (/ (count paths)) (+ 64) int)))))))
+
 (render-step step-to-render)
 
-(comment
-  ;; ## Part II
-  (defn next-step2-xys [height-map path-map xy]
-    (let [minh (->> xy (height-at height-map) int dec)]
-      (->> xy
-           (neigh-xys height-map)
-           (filter #(->> % (height-at height-map) int (<= minh)))
-           (filter #(->> % (value-at path-map) nil?)))))
+;; ## Part II
+(defn next-step2-xys [height-map path-map xy]
+  (let [minh (->> xy (height-at height-map) int dec)]
+    (->> xy
+         (neigh-xys height-map)
+         (filter #(->> % (height-at height-map) int (<= minh)))
+         (filter #(->> % (value-at path-map) nil?)))))
 
-  (defn make-step2 [height-map {:keys [next-xys path-map] :as step}]
-    (reduce (fn [{pm :path-map :as s} xy]
-              (let [cand-xys (next-step2-xys height-map pm xy)
-                    path-xy  (value-at pm xy)]
-                (doseq [cxy cand-xys]
+(defn make-step2 [height-map {:keys [next-xys path-map] :as step}]
+  (reduce (fn [{pm :path-map :as s} xy]
+            (let [cand-xys (next-step2-xys height-map pm xy)
+                  path-xy  (value-at pm xy)
+                  stepped-pm (reduce #(set-value-at %1 %2 (cons xy path-xy))
+                                     pm
+                                     cand-xys)]
+              #_(doseq [cxy cand-xys]
                   (set-value-at! pm cxy (cons xy path-xy)))
-                (update s :next-xys #(apply conj % cand-xys))))
-            (assoc step
-                   :next-xys #{}
-                   :path-map (path-map-copy path-map))
-            next-xys))
+              #_(update s :next-xys #(apply conj % cand-xys))
+              (-> s
+                  (assoc  :path-map stepped-pm)
+                  (update :next-xys #(apply conj % cand-xys)))))
+          (assoc step
+                 :next-xys #{}
+                 :path-map (path-map-copy path-map))
+          next-xys))
 
-  (def step2-0
-    (let [path-map (empty-path-map puzzle)]
-      (set-value-at! path-map end-xy '())
-      {:next-xys #{end-xy}
-       :path-map path-map}))
+(def step2-0
+  (let [path-map (empty-path-map puzzle)]
+    #_(set-value-at! path-map end-xy '())
+    {:next-xys #{end-xy}
+     :path-map #_path-map (set-value-at path-map end-xy '())}))
 
-  (def step2-fn (partial make-step2 puzzle))
+(def step2-fn (partial make-step2 puzzle))
 
+(do
   (def steps2
     (->> step2-0
          (iterate step2-fn)
          (take-while #(not (empty? (:next-xys %))))
          (into [])))
 
-  (defn path-reaching-bottom? [height-map path]
-    (->> path
-         (map #(->> % (height-at height-map)))
-         (some #{\a})
-         boolean))
+  (def total-steps2 (count steps2))
 
-  (def first-step-reaching-bottom
-    (->> steps2
-         (map (fn [{:keys [next-xys path-map] :as s}]
-                (assoc s
-                       :path-to-bottom
-                       (->> next-xys
-                            (map #(value-at path-map %))
-                            (filter #(path-reaching-bottom? puzzle %))
-                            (first)))))
-         (filter :path-to-bottom)
-         first))
+  total-steps2)
 
-  (def shortest-path-to-bottom (:path-to-bottom first-step-reaching-bottom))
+(defn path-reaching-bottom? [height-map path]
+  (->> path
+       (map #(->> % (height-at height-map)))
+       (some #{\a})
+       boolean))
 
-  (def shortest-path-len2
-    (dec (count shortest-path-to-bottom)))
+(def first-step-reaching-bottom
+  (->> steps2
+       (map (fn [{:keys [next-xys path-map] :as s}]
+              (assoc s
+                     :path-to-bottom
+                     (->> next-xys
+                          (map #(value-at path-map %))
+                          (filter #(path-reaching-bottom? puzzle %))
+                          (first)))))
+       (filter :path-to-bottom)
+       first))
 
-  (defn render-step2 [{:keys [next-xys path-map]}]
-    (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
-      (render path-map
-              scale
-              (fn [p xy]
-                (let [h (height-at puzzle xy)]
-                  (if (and (= \a h)
-                           (contains? next-xys xy))
-                    Color/WHITE
-                    (Color.
-                     ;; RED
-                     (if (contains? next-xys xy)
-                       255
-                       (if (contains? paths xy)
-                         128
-                         0))
-                     ;; GREEN
-                     (green-shade h)
-                     ;; BLUE
-                     (if (nil? p)
-                       0
-                       (-> p count (* 191.0) (/ (count paths)) (+ 64) int)))))))))
+(def shortest-path-to-bottom (:path-to-bottom first-step-reaching-bottom))
 
-  ^::clerk/sync
-  (defonce step2* (atom {:counter shortest-path-len2}))
-  #_(reset! step2* {:counter shortest-path-len2})
+(def shortest-path-len2
+  (dec (count shortest-path-to-bottom)))
 
-  ^{::clerk/viewer (slider-viewer (dec (count steps2)))}
-  `step2*
+^::clerk/sync
+(defonce step2* (atom {:counter shortest-path-len2}))
+#_(reset! step2* {:counter shortest-path-len2})
 
-  (def step2-n (:counter @step2*))
-  (def step2 (steps2 step2-n))
+^{::clerk/viewer (slider-viewer (dec (count steps2)))}
+`step2*
 
-  (render-step2 step2)
-  
-  )
+(def step2-number (:counter @step2*))
+(def step2-to-render (steps2 step2-number))
+
+(defn render-step2 [{:keys [next-xys path-map]}]
+  (let [paths (->> next-xys (mapcat #(->> % (value-at path-map))) (into #{}))]
+    (render path-map
+            scale
+            (fn [p xy]
+              (let [h (height-at puzzle xy)]
+                (if (and (= \a h)
+                         (contains? next-xys xy))
+                  Color/WHITE
+                  (Color.
+                   ;; RED
+                   (if (contains? next-xys xy)
+                     255
+                     (if (contains? paths xy)
+                       128
+                       0))
+                   ;; GREEN
+                   (green-shade h)
+                   ;; BLUE
+                   (if (nil? p)
+                     0
+                     (-> p count (* 191.0) (/ (count paths)) (+ 64) int)))))))))
+
+(render-step2 step2-to-render)
