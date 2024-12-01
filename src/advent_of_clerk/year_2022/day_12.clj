@@ -141,16 +141,15 @@ abdefghi"))
 
 (def step-fn (partial make-step puzzle))
 
-(do
-  (def steps
-    (->> step-0
-         (iterate step-fn)
-         (take-while #(not (empty? (:next-xys %))))
-         (into [])))
+;;^{::clerk/visibility {:result :hide}}
+(time
+ (def steps
+   (->> step-0
+        (iterate step-fn)
+        (take-while #(not (empty? (:next-xys %))))
+        (into []))))
 
-  (def total-steps (count steps))
-
-  total-steps)
+(def total-steps (count steps))
 
 (def first-step-reaching-end
   (->> steps
@@ -239,16 +238,17 @@ abdefghi"))
 
 (def step2-fn (partial make-step2 puzzle))
 
-(do
+;;^{::clerk/visibility {:result :hide}}
+(time
   (def steps2
     (->> step2-0
          (iterate step2-fn)
          (take-while #(not (empty? (:next-xys %))))
-         (into [])))
+         (into []))))
 
-  (def total-steps2 (count steps2))
+(def total-steps2 (count steps2))
 
-  total-steps2)
+total-steps2
 
 (defn path-reaching-bottom? [height-map path]
   (->> path
