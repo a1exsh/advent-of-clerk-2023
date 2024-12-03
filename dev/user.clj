@@ -3,7 +3,7 @@
             [advent-of-clerk.index :as index]))
 
 (comment
-  (clerk/serve! {:port 7878 :browse? true :watch-paths ["src"]})
+  (clerk/serve! {:watch-paths ["src"] :port 8023 :browse? true})
   (clerk/clear-cache!)
   (clerk/halt!)
 
