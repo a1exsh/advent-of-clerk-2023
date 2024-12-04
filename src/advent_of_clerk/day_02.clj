@@ -10,7 +10,7 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green")
 
 ;; ## Parsing the input
-(def input (slurp "input/2023/02"))
+(def input (slurp "input/02"))
 ;;(def input example)
 
 (def lines (string/split-lines input))

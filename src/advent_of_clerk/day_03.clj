@@ -16,7 +16,7 @@
 .664.598..")
 
 ;; ## Parsing the input
-(def input (slurp "input/2023/03"))
+(def input (slurp "input/03"))
 ;;(def input (string/trim example))
 
 (def lines (string/split-lines input))

@@ -10,7 +10,7 @@
 ;; treb7uchet")
 
 ;; ## Parsing the input
-(def input (slurp "input/2023/01"))
+(def input (slurp "input/01"))
 
 (def lines (string/split-lines input))
 
