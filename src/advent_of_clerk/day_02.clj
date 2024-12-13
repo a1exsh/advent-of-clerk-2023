@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: 2023: Day 2: Cube Conundrum
-(ns advent-of-clerk.year-2023.day-02
+(ns advent-of-clerk.day-02
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))
 

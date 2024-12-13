@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: 2023: Day 4: Scratchcards
-(ns advent-of-clerk.year-2023.day-04
+(ns advent-of-clerk.day-04
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))
 

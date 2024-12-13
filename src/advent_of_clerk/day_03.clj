@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: 2023: Day 3: Gear Ratios
-(ns advent-of-clerk.year-2023.day-03
+(ns advent-of-clerk.day-03
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))
 

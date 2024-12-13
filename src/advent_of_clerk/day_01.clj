@@ -1,5 +1,5 @@
 ;; # 🎄 Advent of Clerk: 2023: Day 1: Trebuchet?!
-(ns advent-of-clerk.year-2023.day-01
+(ns advent-of-clerk.day-01
   (:require [nextjournal.clerk :as clerk]
             [clojure.string :as string]))
 
